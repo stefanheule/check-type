@@ -1,0 +1,7 @@
+{
+  "name": "check-type",
+  "version": "1.0.0",
+  "description": "Dynamically check JS objects against TypeScript types",
+  "author": "Stefan Heule <stefanheule@gmail.com>",
+  "license": "MIT"
+}
