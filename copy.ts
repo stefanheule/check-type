@@ -1,31 +1,24 @@
 import fs from 'fs';
 
-const TOOL_FILES = [
-  'generate-schema-main.ts',
-  'generate-schema.ts',
-  'parse-types.ts',
-]
-
-const SHARED_FILES = [
-  'language.ts',
-  'type-definitions.ts',
+const FILES = [
+  'tools/types/generate-schema-main.ts',
+  'tools/types/generate-schema.ts',
+  'tools/types/parse-types.ts',
+  'shared/language.ts',
+  'shared/type-definitions.ts',
+  'shared/check-type.ts',
+  'shared/validators.ts',
+  'shared/types/common.ts',
 ];
 
 async function main() {
-  for (const file of TOOL_FILES) {
-    const dest = `./src/tools/types/${file}`;
+  for (const file of FILES) {
+    let source = `../nemo/backend/src/${file}`;
+    let dest = `./src/${file}`;
     if (fs.existsSync(dest)) {
       fs.rmSync(dest);
     }
-    fs.copyFileSync(`../nemo/backend/src/tools/types/${file}`, dest)
-  }
-
-  for (const file of SHARED_FILES) {
-    const dest = `./src/shared/${file}`;
-    if (fs.existsSync(dest)) {
-      fs.rmSync(dest);
-    }
-    fs.copyFileSync(`../nemo/backend/src/shared/${file}`, dest)
+    fs.copyFileSync(source, dest)
   }
 }
 

@@ -5,8 +5,9 @@
   "author": "Stefan Heule <stefanheule@gmail.com>",
   "license": "MIT",
   "bin": {
-    "generate-schema": "./build/index.js"
+    "generate-schema": "./build/cli.js"
   },
+  "main": "src/index.ts",
   "scripts": {
     "copy": "ts-node --transpile-only copy.ts",
     "build": "tsc"
@@ -18,6 +19,11 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "date-fns": "^2.29.3"
+    "@types/chai": "^4.3.4",
+    "@types/uuid": "^8.3.4",
+    "chai": "^4.3.7",
+    "date-fns": "^2.29.3",
+    "email-validator": "^2.0.4",
+    "uuid": "^9.0.0"
   }
 }

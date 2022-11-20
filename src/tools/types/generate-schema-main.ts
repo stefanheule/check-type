@@ -127,10 +127,7 @@ async function main() {
           functions: {
             pathFromSchemaToType: filename =>
               relativePathFromSrcToDst(absoluteSchemaPath, filename),
-            pathToSharedFromSchema: relativePathFromSrcToDst(
-              absoluteSchemaPath,
-              `${__dirname}/..`
-            ),
+            pathToSharedFromSchema: () => `check-type`,
           },
         },
       ];
