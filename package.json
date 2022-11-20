@@ -7,7 +7,8 @@
   "bin": {
     "generate-schema": "./build/cli.js"
   },
-  "main": "src/index.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "copy": "ts-node --transpile-only copy.ts",
     "copy2": "ts-node --transpile-only copy.ts export",

@@ -22,6 +22,7 @@
     "noImplicitReturns": true,
     "sourceMap": true,
     "sourceRoot": "/",
+    "declaration": true,
     "inlineSources": true
   },
   "include": ["src/"]
