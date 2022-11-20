@@ -1,4 +1,3 @@
-import assert from 'assert';
 import * as datefns from 'date-fns';
 
 // Runtime assertion that value is not null or undefined.
@@ -89,15 +88,6 @@ export function deepCopy<A>(a: A): A {
   if (a === undefined) return undefined as unknown as A;
   if (a === null) return null as unknown as A;
   return JSON.parse(JSON.stringify(a)) as A;
-}
-
-export function deepEqual(a: unknown, b: unknown): boolean {
-  try {
-    assert.deepStrictEqual(a, b);
-    return true;
-  } catch (_) {
-    return false;
-  }
 }
 
 export function exceptionToString(error: unknown): string {
