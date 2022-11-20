@@ -1,5 +1,6 @@
 # Generated files
 **/check-type.generated.ts
+build/
 
 # Node related
 node_modules/

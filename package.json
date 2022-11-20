@@ -4,9 +4,12 @@
   "description": "Dynamically check JS objects against TypeScript types",
   "author": "Stefan Heule <stefanheule@gmail.com>",
   "license": "MIT",
+  "bin": {
+    "generate-schema": "./build/index.js"
+  },
   "scripts": {
     "copy": "ts-node --transpile-only copy.ts",
-    "build": "tsc --noEmit"
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/node": "^18.11.9",
