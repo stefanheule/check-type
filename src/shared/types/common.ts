@@ -1,4 +1,3 @@
-
 import * as uuidBase from 'uuid';
 import { capitalizeFirstLetter } from '../language';
 

@@ -5,7 +5,6 @@
 
 import * as ts from 'typescript';
 import { assertNonNull } from '../../shared/language';
-import * as path from 'path';
 import {
   Field,
   ReferenceType,
@@ -367,7 +366,12 @@ function tsMemberToField(checker: ts.TypeChecker, member: ts.Node): Field {
 }
 
 // Visit all relevant nodes to collect the information we need.
-function visit(result: Types, checker: ts.TypeChecker, node: ts.Node, root: string) {
+function visit(
+  result: Types,
+  checker: ts.TypeChecker,
+  node: ts.Node,
+  root: string
+) {
   if (ts.isModuleDeclaration(node)) {
     // This is a namespace, visit its children
     ts.forEachChild(node, node => visit(result, checker, node, root));
@@ -406,9 +410,7 @@ function visit(result: Types, checker: ts.TypeChecker, node: ts.Node, root: stri
         `Duplicate definition for type with ${name}. Namespaces/modules are not currently supported.`
       );
     }
-    const filename = node
-      .getSourceFile()
-      .fileName.substring(root.length + 1);
+    const filename = node.getSourceFile().fileName.substring(root.length + 1);
     result[name] = nodeToType(
       checker,
       ts.isTypeAliasDeclaration(node) ? node.type : node,
