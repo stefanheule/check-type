@@ -15,14 +15,14 @@
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": false,
     "resolveJsonModule": true,
-    "allowJs": false,
+    "allowJs": true,
     "skipLibCheck": true,
     "allowUnreachableCode": true,
     "allowUnusedLabels": false,
     "noImplicitReturns": true,
     "sourceMap": true,
-    "sourceRoot": "/",
     "declaration": true,
+    "declarationMap": true,
     "inlineSources": true
   },
   "include": ["src/"]
