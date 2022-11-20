@@ -1,4 +1,3 @@
-// @check-type:entire-file
 
 import * as uuidBase from 'uuid';
 import { capitalizeFirstLetter } from '../language';

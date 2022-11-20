@@ -96,6 +96,7 @@ function error(msg: string) {
 }
 
 function relativePathFromSrcToDst(src: string, dst: string): string {
+  console.log({src, dst, relative: path.relative(src, dst)});
   return path.relative(src, dst);
 }
 
@@ -104,6 +105,7 @@ async function main() {
   const watching = args.watch;
   const noChanges = args['no-changes'];
 
+  let root: string;
   let tsFilesForKind: () => string[];
   let typesConfigForKind: (types?: Types) => TypesConfig[];
   if (kind === 'single') {
@@ -111,13 +113,14 @@ async function main() {
     if (sources === undefined) {
       return error(`Specify --sources when using --kind=single`);
     }
+    root = path.resolve(sources);
     const schemaPath = args['schema-path'];
     if (schemaPath === undefined) {
       return error(`Specify --schema-path when using --kind=single`);
     }
     tsFilesForKind = () => allTsFilesFor(path.resolve(sources));
     typesConfigForKind = (types?: Types) => {
-      types = types ?? parseTypes(tsProgramFromFiles(tsFilesForKind()));
+      types = types ?? parseTypes(root, tsProgramFromFiles(tsFilesForKind()));
       const absoluteSchemaPath = path.resolve(schemaPath);
       return [
         {
@@ -126,13 +129,14 @@ async function main() {
           absolutePathToSchema: absoluteSchemaPath,
           functions: {
             pathFromSchemaToType: filename =>
-              relativePathFromSrcToDst(absoluteSchemaPath, filename),
+              relativePathFromSrcToDst(root, filename),
             pathToSharedFromSchema: () => `check-type`,
           },
         },
       ];
     };
   } else {
+    root = path.resolve(`${__dirname}/../../../..`);
     tsFilesForKind = () => tsFilesForBuiltinKind(kind);
     typesConfigForKind = (types?: Types) =>
       typesConfigForBuiltinKind(kind, types);
@@ -163,7 +167,7 @@ async function main() {
       program => {
         console.log(first ? `Initial processing...` : `Detected changes...`);
         first = false;
-        const types = parseTypes(program);
+        const types = parseTypes(root, program);
         const configs = typesConfigForKind(types);
         for (const config of configs) {
           generateSchemaFile(config, noChanges);

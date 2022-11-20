@@ -366,13 +366,11 @@ function tsMemberToField(checker: ts.TypeChecker, member: ts.Node): Field {
   );
 }
 
-export const PROJECT_ROOT = path.resolve(`${__dirname}/../../../..`);
-
 // Visit all relevant nodes to collect the information we need.
-function visit(result: Types, checker: ts.TypeChecker, node: ts.Node) {
+function visit(result: Types, checker: ts.TypeChecker, node: ts.Node, root: string) {
   if (ts.isModuleDeclaration(node)) {
     // This is a namespace, visit its children
-    ts.forEachChild(node, node => visit(result, checker, node));
+    ts.forEachChild(node, node => visit(result, checker, node, root));
     return;
   }
   const sourceFile = node.getSourceFile().getFullText();
@@ -410,7 +408,7 @@ function visit(result: Types, checker: ts.TypeChecker, node: ts.Node) {
     }
     const filename = node
       .getSourceFile()
-      .fileName.substring(PROJECT_ROOT.length + 1);
+      .fileName.substring(root.length + 1);
     result[name] = nodeToType(
       checker,
       ts.isTypeAliasDeclaration(node) ? node.type : node,
@@ -444,7 +442,7 @@ export function tsProgramFromFiles(files: string[]): ts.Program {
   return ts.createProgram(files, compilerOptions());
 }
 
-export function parseTypes(program: ts.Program): Types {
+export function parseTypes(root: string, program: ts.Program): Types {
   // Get the checker, we will use it to find more about classes
   const checker = program.getTypeChecker();
 
@@ -454,7 +452,7 @@ export function parseTypes(program: ts.Program): Types {
   for (const sourceFile of program.getSourceFiles()) {
     if (!sourceFile.isDeclarationFile) {
       // Walk the tree to search for classes
-      ts.forEachChild(sourceFile, node => visit(result, checker, node));
+      ts.forEachChild(sourceFile, node => visit(result, checker, node, root));
     }
   }
 
