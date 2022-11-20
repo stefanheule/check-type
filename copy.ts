@@ -15,6 +15,9 @@ async function main() {
   for (const file of FILES) {
     let source = `../nemo/backend/src/${file}`;
     let dest = `./src/${file}`;
+    if (process.argv.length > 2 && process.argv[2] === 'export') {
+      [source, dest] = [dest, source];
+    }
     if (fs.existsSync(dest)) {
       fs.rmSync(dest);
     }

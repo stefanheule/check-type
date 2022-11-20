@@ -10,6 +10,7 @@
   "main": "src/index.ts",
   "scripts": {
     "copy": "ts-node --transpile-only copy.ts",
+    "copy2": "ts-node --transpile-only copy.ts export",
     "build": "tsc"
   },
   "devDependencies": {
