@@ -60,6 +60,7 @@ export interface PartialType extends BaseType {
 }
 export interface BuiltInType extends BaseType {
   kind: 'number' | 'boolean' | 'string';
+  specialName?: string;
 }
 export interface InterfaceType extends BaseType {
   kind: 'interface';
@@ -127,6 +128,8 @@ export function typeToString(
   if (type.name !== undefined) return type.name;
   switch (type.kind) {
     case 'string':
+      if (type.specialName !== undefined) return type.specialName;
+      return type.kind;
     case 'number':
     case 'boolean':
     case 'null':

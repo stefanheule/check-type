@@ -4,6 +4,7 @@
 // Most of the code is based on examples from https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API.
 
 import * as ts from 'typescript';
+import { SPECIAL_TYPES } from '../../shared/check-type';
 import { assertNonNull } from '../../shared/language';
 import {
   Field,
@@ -183,6 +184,14 @@ function nodeToType(
           node.kind
         }`
       );
+    }
+    if (SPECIAL_TYPES.includes(node.typeName.getText())) {
+      return {
+        kind: 'string',
+        specialName: node.typeName.getText(),
+        name,
+        filename,
+      };
     }
     return {
       kind: 'reference-type',

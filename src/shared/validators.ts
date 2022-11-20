@@ -32,7 +32,13 @@
 import { assert } from 'chai';
 import * as datefns from 'date-fns';
 import { validate as isEmailValid } from 'email-validator';
-import { IsoDate, PhoneNumber, IsoDatetime } from './types/common';
+import {
+  IsoDate,
+  PhoneNumber,
+  IsoDatetime,
+  COUNTRIES,
+  US_STATES,
+} from './types/common';
 
 export function nonEmptyValidator(name: string): (value: string) => string {
   return (s: string) => {
@@ -299,4 +305,16 @@ export function validateUuid(value: string): string {
     return `Expected a UUID like '123e4567-e89b-12d3-a456-426614174000'.`;
   }
   return '';
+}
+
+// --- Country and state codes
+
+export function validateCountryCode(value: string): string {
+  if (COUNTRIES.some(country => country.code === value)) return '';
+  return `Expected a valid country code, but got '${value}'.`;
+}
+
+export function validateUsState(value: string): string {
+  if (US_STATES.some(state => state.code === value)) return '';
+  return `Expected a valid US state, but got '${value}'.`;
 }

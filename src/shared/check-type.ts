@@ -15,6 +15,7 @@ import {
 } from './type-definitions';
 import { assertNonNull, hasProperty, mapEnum, objectToJson } from './language';
 import {
+  validateCountryCode,
   validateDollarAmount,
   validateEmail,
   validateIsoDate,
@@ -24,8 +25,24 @@ import {
   validatePostalCode,
   validateSocialSecurityNumber,
   validateTrimmedString,
+  validateUsState,
   validateUuid,
 } from './validators';
+
+export const SPECIAL_TYPES = [
+  'IsoDate',
+  'IsoDatetime',
+  'TrimmedString',
+  'Email',
+  'PhoneNumber',
+  'SocialSecurityNumber',
+  'PostalCode',
+  'Uuid',
+  'NumericString',
+  'DollarAmount',
+  'UsState',
+  'CountryCode',
+];
 
 // A type that can be used to express "Any type that's not a Promise".
 export type NotPromise<T> = T extends Promise<unknown> ? never : T;
@@ -41,8 +58,8 @@ export class TypecheckingError extends Error {
 // Check the value for additional constraints when we know about a special type.
 // These types are defined in shared/types/common.ts.
 function checkSpecialStringType(value: string, type: BuiltInType) {
-  if (type.name === undefined) return;
-  const validator = mapEnum(type.name, {
+  if (type.specialName === undefined) return;
+  const validator = mapEnum(type.specialName, {
     IsoDate: validateIsoDate,
     IsoDatetime: validateIsoDatetime,
     TrimmedString: validateTrimmedString,
@@ -53,22 +70,26 @@ function checkSpecialStringType(value: string, type: BuiltInType) {
     Uuid: validateUuid,
     NumericString: validateNumericString,
     DollarAmount: validateDollarAmount,
+    UsState: validateUsState,
+    CountryCode: validateCountryCode,
   });
   if (validator !== undefined) {
     const result = validator(value);
     if (result !== '')
-      throw new TypecheckingError(`${result} Got '${value}' for ${type.name}`);
+      throw new TypecheckingError(
+        `${result} Got '${value}' for ${type.specialName}`
+      );
   }
   // Check trimmed-ness
   if (
     ['TrimmedString', 'Email', 'DollarAmount', 'NumericString'].includes(
-      type.name
+      type.specialName
     ) &&
     value !== value.trim()
   ) {
     throw new TypecheckingError(
       `${
-        type.name
+        type.specialName
       } must not have extra whitespace, but found '${value}' == value != value.trim() == '${value.trim()}'`
     );
   }
