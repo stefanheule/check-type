@@ -96,7 +96,6 @@ function error(msg: string) {
 }
 
 function relativePathFromSrcToDst(src: string, dst: string): string {
-  console.log({src, dst, relative: path.relative(src, dst)});
   return path.relative(src, dst);
 }
 
