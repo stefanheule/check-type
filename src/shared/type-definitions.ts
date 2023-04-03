@@ -1,6 +1,7 @@
 // A set of type definitions, indexed by their name.
-export type Types = {
-  [key: string]: Type;
+export type Schema = {
+  types: { [key: string]: Type };
+  assertedTypes: string[];
 };
 
 export type Type = ReferenceType | ResolvedType;
@@ -18,10 +19,12 @@ export type ResolvedType =
   | BooleanLiteralType
   | UndefinedType;
 export interface BaseType {
-  // The name of this type (if it has one).
+  /** The name of this type (if it has one). */
   name?: string;
-  // The filename where this type is defined.
+  /** The filename where this type is defined. */
   filename?: string;
+  /** Should changes to this type be ignored across versions? */
+  ignoreChanges?: boolean;
 }
 export interface ReferenceType extends BaseType {
   kind: 'reference-type';
@@ -87,14 +90,14 @@ export interface Field {
 
 // Resolves a type: a reference type will be mapped to it's definition (potentially
 // following multiple resolve steps), and all other types are returned as is.
-export function resolveType(types: Types, type: Type): ResolvedType {
+export function resolveType(schema: Schema, type: Type): ResolvedType {
   if (type.kind != 'reference-type') {
     return type;
   }
-  if (type.referencedTypeName in types) {
-    const candidate = types[type.referencedTypeName];
+  if (type.referencedTypeName in schema.types) {
+    const candidate = schema.types[type.referencedTypeName];
     if (candidate.kind == 'reference-type') {
-      return resolveType(types, candidate);
+      return resolveType(schema, candidate);
     }
     return { ...candidate, name: type.referencedTypeName };
   }

@@ -65,7 +65,10 @@ export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function mapEnum<T extends string, R>(value: T, map: Record<T, R>): R {
+export function mapEnum<T extends string | number, R>(
+  value: T,
+  map: Record<T, R>
+): R {
   return map[value];
 }
 

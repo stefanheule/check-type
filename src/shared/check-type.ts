@@ -6,7 +6,7 @@
 
 import {
   Type,
-  Types,
+  Schema,
   resolveType,
   isEnum,
   typeToString,
@@ -96,7 +96,7 @@ function checkSpecialStringType(value: string, type: BuiltInType) {
 }
 
 /** Returns the set of possible properties on a given type. The set is an over-approximation. */
-export function computePropertiesOfType(types: Types, type: Type): string[] {
+export function computePropertiesOfType(schema: Schema, type: Type): string[] {
   switch (type.kind) {
     case 'string':
     case 'number':
@@ -108,7 +108,7 @@ export function computePropertiesOfType(types: Types, type: Type): string[] {
     case 'boolean-literal':
       return [];
     case 'mapped':
-      const from = resolveType(types, type.mapFrom);
+      const from = resolveType(schema, type.mapFrom);
       switch (from.kind) {
         case 'string-literal':
           return [from.value];
@@ -128,11 +128,11 @@ export function computePropertiesOfType(types: Types, type: Type): string[] {
     case 'array':
       return ['length'];
     case 'reference-type':
-      return computePropertiesOfType(types, resolveType(types, type));
+      return computePropertiesOfType(schema, resolveType(schema, type));
     case 'interface':
       const result: string[] = type.fields.map(field => field.name);
       for (const member of type.heritage) {
-        for (const candidate of computePropertiesOfType(types, member)) {
+        for (const candidate of computePropertiesOfType(schema, member)) {
           if (!result.includes(candidate)) {
             result.push(candidate);
           }
@@ -142,7 +142,7 @@ export function computePropertiesOfType(types: Types, type: Type): string[] {
     case 'union': {
       const result: string[] = [];
       for (const member of type.unionMembers) {
-        for (const candidate of computePropertiesOfType(types, member)) {
+        for (const candidate of computePropertiesOfType(schema, member)) {
           if (!result.includes(candidate)) {
             result.push(candidate);
           }
@@ -153,7 +153,7 @@ export function computePropertiesOfType(types: Types, type: Type): string[] {
     case 'intersection': {
       const result: string[] = [];
       for (const member of type.intersectionMembers) {
-        for (const candidate of computePropertiesOfType(types, member)) {
+        for (const candidate of computePropertiesOfType(schema, member)) {
           if (!result.includes(candidate)) {
             result.push(candidate);
           }
@@ -162,7 +162,7 @@ export function computePropertiesOfType(types: Types, type: Type): string[] {
       return result;
     }
     case 'partial':
-      return computePropertiesOfType(types, type.elementType);
+      return computePropertiesOfType(schema, type.elementType);
   }
 }
 
@@ -170,7 +170,7 @@ export function computePropertiesOfType(types: Types, type: Type): string[] {
 export function checkValueAgainstType<T>(
   value: NotPromise<T>,
   type: Type,
-  schema: Types
+  schema: Schema
 ): string {
   const valueString = 'value';
   const typeString = '_TYPE_';
@@ -215,7 +215,7 @@ _TYPE_ = ${objectToJson(type)}`
 function checkValueAgainstTypeHelper(
   value: unknown,
   type: Type,
-  schema: Types,
+  schema: Schema,
   valueString: string,
   typeString: string,
   depth: number,

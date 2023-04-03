@@ -84,6 +84,18 @@ export function deparseUserPhoneNumber(value: PhoneNumber): string {
   );
 }
 
+export function phoneNumberToString(value: PhoneNumber): string {
+  const usNumber = value.substring(2);
+  return (
+    '(' +
+    usNumber.substring(0, 3) +
+    ') ' +
+    usNumber.substring(3, 6) +
+    ' ' +
+    usNumber.substring(6)
+  );
+}
+
 // --- PostalCode
 
 export function validatePostalCode(value: string): string {
@@ -243,13 +255,13 @@ export function dateToIsoDate(value: Date): IsoDate {
 
 export function isoDateToDate(value: IsoDate): Date {
   const result = datefns.parse(value, ISO_DATE_DATEFNS_FORMAT, new Date());
-  assert.isTrue(datefns.isValid(result));
+  assert.isTrue(datefns.isValid(result), `Got invalid date: ${value}`);
   return result;
 }
 
 export function isoDatetimeToDate(value: IsoDatetime): Date {
   const result = datefns.parseISO(value);
-  assert.isTrue(datefns.isValid(result));
+  assert.isTrue(datefns.isValid(result), `Got invalid date: ${value}`);
   return result;
 }
 

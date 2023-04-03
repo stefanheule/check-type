@@ -40,10 +40,26 @@ export function formatEmail(email: string): TrimmedString {
   return email.trim().toLocaleLowerCase() as TrimmedString;
 }
 
-export function formatNamePart(name: string): TrimmedString {
-  return capitalizeFirstLetter(
-    name.trim().toLocaleLowerCase()
-  ) as TrimmedString;
+export function formatNamePart(part: string): TrimmedString {
+  const formatPartPart = (part: string): string => {
+    let result = capitalizeFirstLetter(part.trim());
+    if (result.startsWith('Mc')) {
+      result = `Mc${capitalizeFirstLetter(result.slice(2))}`;
+    }
+    if (result.startsWith('Mac')) {
+      result = `Mac${capitalizeFirstLetter(result.slice(3))}`;
+    }
+    return result;
+  };
+  const separators = [' ', '-', `'`];
+  let result = part.trim().toLocaleLowerCase();
+  for (const separator of separators) {
+    result = result
+      .split(separator)
+      .map(name => formatPartPart(name))
+      .join(separator);
+  }
+  return result as TrimmedString;
 }
 
 let _COUNTRY_OPTIONS: Record<CountryCode, string> | undefined = undefined;

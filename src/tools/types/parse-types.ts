@@ -11,9 +11,10 @@ import {
   ReferenceType,
   resolveType,
   Type,
-  Types,
+  Schema,
   typeToString,
 } from '../../shared/type-definitions';
+import { allTypes } from './generate-schema';
 
 function compareTypes(a: Type, b: Type): number {
   return typeToString(a).localeCompare(typeToString(b));
@@ -22,8 +23,9 @@ function compareTypes(a: Type, b: Type): number {
 // Recursively visits all types in the given set of type definitions.
 // Stops recursing if the visitor returned false.
 export function visitAllTypes(
-  types: Types,
-  visitor: (type: Type) => boolean | void
+  schema: Schema,
+  visitor: (type: Type) => boolean | void,
+  startType?: Type
 ) {
   function recurseOnType(type: Type) {
     if (visitor(type) === false) return;
@@ -67,12 +69,16 @@ export function visitAllTypes(
         break;
     }
   }
-  for (const type of Object.values(types)) {
-    recurseOnType(type);
+  if (startType !== undefined) {
+    recurseOnType(startType);
+  } else {
+    for (const type of allTypes(schema)) {
+      recurseOnType(type);
+    }
   }
 }
 
-function unionKinds(types: Types, members: Type[]): string[] | undefined {
+function unionKinds(types: Schema, members: Type[]): string[] | undefined {
   const result: string[] = [];
   for (const member of members) {
     const resolvedMember = resolveType(types, member);
@@ -376,34 +382,61 @@ function tsMemberToField(checker: ts.TypeChecker, member: ts.Node): Field {
 
 // Visit all relevant nodes to collect the information we need.
 function visit(
-  result: Types,
+  result: Schema,
+  assertedTypes: string[],
   checker: ts.TypeChecker,
   node: ts.Node,
   root: string
 ) {
   if (ts.isModuleDeclaration(node)) {
     // This is a namespace, visit its children
-    ts.forEachChild(node, node => visit(result, checker, node, root));
+    ts.forEachChild(node, node =>
+      visit(result, assertedTypes, checker, node, root)
+    );
     return;
   }
+
+  // Handle asserted types (by checking import of assertX functions).
+  if (
+    ts.isImportDeclaration(node) &&
+    node.importClause?.namedBindings?.kind === ts.SyntaxKind.NamedImports
+  ) {
+    const path = node.moduleSpecifier.getText();
+    if (path.endsWith(`/check-type.generated'`)) {
+      for (const element of node.importClause.namedBindings.elements) {
+        const name = element.name.getText();
+        if (name.startsWith('assert')) {
+          assertedTypes.push(name.slice('assert'.length));
+        }
+      }
+    }
+  }
+
+  // Handle type declarations.
   const sourceFile = node.getSourceFile().getFullText();
   const commentRanges = ts.getLeadingCommentRanges(
     sourceFile,
     node.getFullStart()
   );
-  let comments: string[] = [];
+  let comments = '';
   if (commentRanges && commentRanges.length > 0) {
-    comments = commentRanges.map(r => sourceFile.slice(r.pos, r.end));
+    comments += `${commentRanges.map(r => sourceFile.slice(r.pos, r.end))}\n`;
   }
-  const fileAnnotation = '// @check-type:entire-file';
-  const nodeAnnotation = '// @check-type';
-  const nodeHasAnnotation =
-    comments.length > 0 &&
-    comments[comments.length - 1].includes(nodeAnnotation) &&
-    !comments[comments.length - 1].includes(fileAnnotation);
+  const fileAnnotation = '// @check-type:entire-file\n';
+  const nodeAnnotation = '// @check-type\n';
+  const ignoreChangesAnnotation = '// @check-type:ignore-changes\n';
+  const nodeHasAnnotation = comments.includes(nodeAnnotation);
+  const nodeHasIgnoreChangesAnnotation = comments.includes(
+    ignoreChangesAnnotation
+  );
   const fileHasAnnotation = sourceFile.includes(fileAnnotation);
   // Should we consider this node?
   if (!fileHasAnnotation && !nodeHasAnnotation) {
+    if (nodeHasIgnoreChangesAnnotation) {
+      throw new Error(
+        `The following node has a @check-type:ignore-changes annotation, but not $check-type. Node = ${node.getFullText()}`
+      );
+    }
     return;
   }
   // There are two supported ways to define a type: via an interface, or a type alias.
@@ -420,12 +453,15 @@ function visit(
       );
     }
     const filename = node.getSourceFile().fileName.substring(root.length + 1);
-    result[name] = nodeToType(
+    result.types[name] = nodeToType(
       checker,
       ts.isTypeAliasDeclaration(node) ? node.type : node,
       name,
       filename
     );
+    if (nodeHasIgnoreChangesAnnotation) {
+      result.types[name].ignoreChanges = true;
+    }
   } else if (!fileHasAnnotation) {
     throw new Error(
       `The following node has a @check-type annotation, but is not a type definition, so the annotation has no effect. Node = ${node.getFullText()}`
@@ -453,19 +489,32 @@ export function tsProgramFromFiles(files: string[]): ts.Program {
   return ts.createProgram(files, compilerOptions());
 }
 
-export function parseTypes(root: string, program: ts.Program): Types {
+export function parseTypes(root: string, program: ts.Program): Schema {
   // Get the checker, we will use it to find more about classes
   const checker = program.getTypeChecker();
 
-  const result: Types = {};
+  const result: Schema = {
+    types: {},
+    assertedTypes: [],
+  };
 
   // Visit every sourceFile in the program
   for (const sourceFile of program.getSourceFiles()) {
     if (!sourceFile.isDeclarationFile) {
       // Walk the tree to search for classes
-      ts.forEachChild(sourceFile, node => visit(result, checker, node, root));
+      try {
+        ts.forEachChild(sourceFile, node =>
+          visit(result, result.assertedTypes, checker, node, root)
+        );
+      } catch (e) {
+        console.log(`Failed while processing ${sourceFile.fileName}.`);
+        throw e;
+      }
     }
   }
+
+  // Sort assertedTypes.
+  result.assertedTypes.sort();
 
   // Fill in kinds information (we do this now to be able to resolve types)
   visitAllTypes(result, type => {
