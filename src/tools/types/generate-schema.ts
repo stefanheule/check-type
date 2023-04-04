@@ -29,7 +29,10 @@ export function generateSchemaFile(config: TypesConfig, noChanges: boolean) {
   }
 
   // Test is not checked in, so we don't check.
-  if (noChanges && config.name !== 'test') {
+  if (
+    noChanges &&
+    !config.absolutePathToSchema.endsWith('backend/src/tools/types')
+  ) {
     console.log(
       `Schema for '${config.name}' is not up to date, please generate it using 'yarn codegen'.`
     );
