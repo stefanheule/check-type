@@ -13,6 +13,7 @@ import {
   Type,
   Schema,
   typeToString,
+  isEnum,
 } from '../../shared/type-definitions';
 import { allTypes } from './generate-schema';
 
@@ -189,6 +190,24 @@ function nodeToType(
         mapFrom: nodeToType(checker, node.typeArguments[0]),
         optional: false,
         mapTo: nodeToType(checker, node.typeArguments[1]),
+        name,
+        filename,
+      };
+    }
+    if (
+      node.typeName.getText() === 'Omit' &&
+      node.typeArguments?.length == 2
+    ) {
+      const base = nodeToType(checker, node.typeArguments[0]);
+      const omit = nodeToType(checker, node.typeArguments[1]);
+      const fields = isEnum(omit);
+      if (!fields) {
+        throw new Error(`Only Omit<T, K> is supported where K is a string literal or union of string literals.`);
+      }
+      return {
+        kind: 'omit',
+        base,
+        omittedFields: fields,
         name,
         filename,
       };

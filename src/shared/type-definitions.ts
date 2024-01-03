@@ -17,6 +17,7 @@ export type ResolvedType =
   | NullType
   | UnknownType
   | MappedType
+  | OmitType
   | BooleanLiteralType
   | UndefinedType;
 export interface BaseType {
@@ -42,6 +43,11 @@ export interface MappedType extends BaseType {
   mapFrom: Type;
   optional: boolean;
   mapTo: Type;
+}
+export interface OmitType extends BaseType {
+  kind: 'omit';
+  base: Type;
+  omittedFields: string[];
 }
 export interface BooleanLiteralType extends BaseType {
   kind: 'boolean-literal';
@@ -113,9 +119,11 @@ export function resolveType(schema: Schema, type: Type): ResolvedType {
 
 // Returns the enum values if this Union is an enum (i.e. a set of string literal types),
 // or undefined otherwise.
-export function isEnum(union: UnionType): string[] | undefined {
+export function isEnum(t: Type): string[] | undefined {
+  if (t.kind == 'string-literal') return [t.value];
+  if (t.kind != 'union') return undefined;
   const result = [];
-  for (const member of union.unionMembers) {
+  for (const member of t.unionMembers) {
     if (member.kind == 'string-literal') {
       result.push(member.value);
     } else {
@@ -180,6 +188,10 @@ export function typeToString(
       return `Partial<${typeToString(type.elementType, options)}>`;
     case 'string-literal':
       return `'${type.value}'`;
+    case 'omit':
+      return `Omit<${typeToString(type.base, options)}, ${type.omittedFields
+        .map(x => `'${x}'`)
+        .join(' | ')}>`;
     case 'mapped':
       return `{ [Symbol in ${type.mapFrom}]: ${type.mapTo}}`;
   }

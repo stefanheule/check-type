@@ -130,6 +130,8 @@ export function computePropertiesOfType(schema: Schema, type: Type): string[] {
       return ['length'];
     case 'reference-type':
       return computePropertiesOfType(schema, resolveType(schema, type));
+    case 'omit':
+      return computePropertiesOfType(schema, resolveType(schema, type)).filter(f => type.omittedFields.indexOf(f) === -1);
     case 'interface':
       const result: string[] = type.fields.map(field => field.name);
       for (const member of type.heritage) {
@@ -220,7 +222,7 @@ function checkValueAgainstTypeHelper(
   valueString: string,
   typeString: string,
   depth: number,
-  options?: { partial?: boolean }
+  options?: { partial?: boolean, ignoredFields?: string[] }
 ) {
   const checkJsType = (jsType: string, details?: string) => {
     if (typeof value !== jsType) {
@@ -229,6 +231,7 @@ function checkValueAgainstTypeHelper(
       );
     }
   };
+  const ignoredFields = options?.ignoredFields ?? [];
 
   handleTypecheckingError(
     () => {
@@ -258,10 +261,22 @@ function checkValueAgainstTypeHelper(
               `Expected ${type.value ? 'true' : 'false'} literal`
             );
           break;
+        case 'omit':
+          checkValueAgainstTypeHelper(
+            value,
+            type.base,
+            schema,
+            valueString,
+            typeToShortString(type),
+            depth + 1,
+            { ignoredFields }
+          );
+          break;
         case 'mapped':
           checkJsType('object');
           if (type.mapFrom.kind === 'string') {
             for (const field of Object.keys(value as object)) {
+              if (ignoredFields.includes(field)) continue;
               checkValueAgainstTypeHelper(
                 (value as { [field: string]: unknown })[field],
                 type.mapTo,
@@ -285,6 +300,7 @@ function checkValueAgainstTypeHelper(
             );
           }
           for (const property of properties) {
+            if (ignoredFields.includes(property)) continue;
             if (
               !type.optional &&
               options?.partial !== true &&
@@ -321,6 +337,13 @@ function checkValueAgainstTypeHelper(
               `Expected string literal '${type.value}', but got '${value}'`
             );
           break;
+        case 'number-literal':
+          checkJsType('number');
+          if (value !== type.value)
+            throw new TypecheckingError(
+              `Expected number literal '${type.value}', but got '${value}'`
+            );
+          break;
         case 'intersection':
           for (const member of type.intersectionMembers) {
             checkValueAgainstTypeHelper(
@@ -329,7 +352,8 @@ function checkValueAgainstTypeHelper(
               schema,
               valueString,
               typeToString(member, { short: true }),
-              depth + 1
+              depth + 1,
+              { ignoredFields }
             );
           }
           break;
@@ -388,7 +412,8 @@ function checkValueAgainstTypeHelper(
                 unionKindType,
                 `${typeString}[kind == '${value.kind}']`
               ),
-              depth + 1
+              depth + 1,
+              { ignoredFields }
             );
           }
           // Generic handling.
@@ -406,7 +431,8 @@ function checkValueAgainstTypeHelper(
                     option,
                     `${typeString}[${ith(i + 1)} union member]`
                   ),
-                  depth + 1
+                  depth + 1,
+                  { ignoredFields }
                 );
                 return '';
               },
@@ -455,7 +481,7 @@ ${errors.join('\n')}`);
             valueString,
             typeToShortString(type, `Partial<${typeString}>`),
             depth + 1,
-            { partial: true }
+            { partial: true, ignoredFields }
           );
           break;
         }
@@ -463,6 +489,7 @@ ${errors.join('\n')}`);
         case 'interface': {
           checkJsType('object');
           for (const field of type.fields) {
+            if (ignoredFields.includes(field.name)) continue;
             if (
               !field.optional &&
               options?.partial !== true &&
