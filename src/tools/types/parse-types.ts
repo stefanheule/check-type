@@ -390,6 +390,14 @@ function tsTypeToType(
       filename,
     };
   }
+  if (tsType.isNumberLiteral()) {
+    return {
+      kind: 'number-literal',
+      value: tsType.value,
+      name,
+      filename,
+    };
+  }
   throw new Error(
     `Type not supported: ${checker.typeToString(tsType)} in ${filename}`
   );
