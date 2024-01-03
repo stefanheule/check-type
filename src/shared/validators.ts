@@ -29,7 +29,6 @@
 //
 // NOTE: To avoid circular dependencies, all parse functions are placed in validators2.ts.
 
-import { assert } from 'chai';
 import * as datefns from 'date-fns';
 import { validate as isEmailValid } from 'email-validator';
 import {
@@ -255,13 +254,17 @@ export function dateToIsoDate(value: Date): IsoDate {
 
 export function isoDateToDate(value: IsoDate): Date {
   const result = datefns.parse(value, ISO_DATE_DATEFNS_FORMAT, new Date());
-  assert.isTrue(datefns.isValid(result), `Got invalid date: ${value}`);
+  if (!datefns.isValid(result)) {
+    throw new Error(`Value is not an IsoDate: '${value}'`);
+  }
   return result;
 }
 
 export function isoDatetimeToDate(value: IsoDatetime): Date {
   const result = datefns.parseISO(value);
-  assert.isTrue(datefns.isValid(result), `Got invalid date: ${value}`);
+  if (!datefns.isValid(result)) {
+    throw new Error(`Value is not an IsoDatetime: '${value}'`);
+  }
   return result;
 }
 
