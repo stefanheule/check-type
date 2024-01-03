@@ -66,6 +66,7 @@ export function visitAllTypes(
       case 'string':
       case 'string-literal':
       case 'boolean-literal':
+      case 'number-literal':
         break;
     }
   }
@@ -136,6 +137,14 @@ function nodeToType(
     return {
       kind: 'string-literal',
       value: node.literal.text,
+      name,
+      filename,
+    };
+  }
+  if (ts.isLiteralTypeNode(node) && ts.isNumericLiteral(node.literal)) {
+    return {
+      kind: 'number-literal',
+      value: parseFloat(node.literal.text),
       name,
       filename,
     };

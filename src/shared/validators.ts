@@ -265,6 +265,14 @@ export function isoDatetimeToDate(value: IsoDatetime): Date {
   return result;
 }
 
+export function isoDatetimeToIsoDate(value: IsoDatetime): IsoDate {
+  return value.substring(0, 10) as IsoDate;
+}
+
+export function isoDateToIsoDatetime(value: IsoDate): IsoDatetime {
+  return dateToIsoDatetime(isoDateToDate(value));
+}
+
 export function dateToIsoDatetime(value: Date): IsoDatetime {
   return datefns.formatISO(value) as IsoDatetime;
 }

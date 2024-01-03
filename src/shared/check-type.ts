@@ -106,6 +106,7 @@ export function computePropertiesOfType(schema: Schema, type: Type): string[] {
     case 'unknown':
     case 'string-literal':
     case 'boolean-literal':
+    case 'number-literal':
       return [];
     case 'mapped':
       const from = resolveType(schema, type.mapFrom);

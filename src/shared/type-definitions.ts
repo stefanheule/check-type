@@ -13,6 +13,7 @@ export type ResolvedType =
   | PartialType
   | BuiltInType
   | StringLiteralType
+  | NumberLiteralType
   | NullType
   | UnknownType
   | MappedType
@@ -52,6 +53,10 @@ export interface UndefinedType extends BaseType {
 export interface StringLiteralType extends BaseType {
   kind: 'string-literal';
   value: string;
+}
+export interface NumberLiteralType extends BaseType {
+  kind: 'number-literal';
+  value: number;
 }
 export interface ArrayType extends BaseType {
   kind: 'array';
@@ -141,6 +146,8 @@ export function typeToString(
       return type.kind;
     case 'boolean-literal':
       return type.value ? 'true' : 'false';
+    case 'number-literal':
+      return type.value.toString();
     case 'reference-type':
       return type.referencedTypeName;
     case 'interface':
