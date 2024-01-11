@@ -234,6 +234,14 @@ function nodeToType(
       filename,
     };
   }
+  if (ts.isTypeOperatorNode(node) && node.operator == ts.SyntaxKind.KeyOfKeyword) {
+    return {
+      kind: 'keyof',
+      base: nodeToType(checker, node.type),
+      name,
+      filename,
+    };
+  }
   if (
     ts.isLiteralTypeNode(node) &&
     node.literal.kind == ts.SyntaxKind.NullKeyword

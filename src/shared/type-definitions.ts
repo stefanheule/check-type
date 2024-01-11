@@ -18,6 +18,7 @@ export type ResolvedType =
   | UnknownType
   | MappedType
   | OmitType
+  | KeyofType
   | BooleanLiteralType
   | UndefinedType;
 export interface BaseType {
@@ -48,6 +49,10 @@ export interface OmitType extends BaseType {
   kind: 'omit';
   base: Type;
   omittedFields: string[];
+}
+export interface KeyofType extends BaseType {
+  kind: 'keyof';
+  base: Type;
 }
 export interface BooleanLiteralType extends BaseType {
   kind: 'boolean-literal';
@@ -188,6 +193,8 @@ export function typeToString(
       return `Partial<${typeToString(type.elementType, options)}>`;
     case 'string-literal':
       return `'${type.value}'`;
+    case 'keyof':
+      return `keyof ${typeToString(type.base, options)}`;
     case 'omit':
       return `Omit<${typeToString(type.base, options)}, ${type.omittedFields
         .map(x => `'${x}'`)

@@ -16,6 +16,23 @@ function checkValueAgainstType(value: unknown, type: { kind: string }): string {
   );
 }
 
+test('KeyOfType', () => {
+  expect(
+    checkValueAgainstType('sub', TEST_SCHEMA.types.KeyOfType)
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+    checkValueAgainstType('base', TEST_SCHEMA.types.KeyOfType)
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+  checkValueAgainstType('not_existing_field', TEST_SCHEMA.types.KeyOfType)
+).toMatchInlineSnapshot(`
+"value (aka. \`'not_existing_field'\`) does not conform to KeyOfType!
+
+Expected one of ['sub','base'], but got 'not_existing_field'
+"
+`);
+})
+
 test('Omit', () => {
   expect(
     checkValueAgainstType({ sub: 'b' }, TEST_SCHEMA.types.OmitTypeNoBase)

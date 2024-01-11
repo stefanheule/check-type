@@ -107,6 +107,7 @@ export function computePropertiesOfType(schema: Schema, type: Type): string[] {
     case 'string-literal':
     case 'boolean-literal':
     case 'number-literal':
+    case 'keyof':
       return [];
     case 'mapped':
       const from = resolveType(schema, type.mapFrom);
@@ -260,6 +261,15 @@ function checkValueAgainstTypeHelper(
             throw new TypecheckingError(
               `Expected ${type.value ? 'true' : 'false'} literal`
             );
+          break;
+        case 'keyof':
+          checkJsType('string');
+          const keys = computePropertiesOfType(schema, type.base);
+          if (!keys.includes(value as string)) {
+            throw new TypecheckingError(
+              `Expected one of [${keys.map(value => `'${value}'`)}], but got '${value}'`
+            );
+          }
           break;
         case 'omit':
           checkValueAgainstTypeHelper(

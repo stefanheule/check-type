@@ -65,3 +65,5 @@ export interface CommonTypes {
 export type OmitTypeNoSub = Omit<Sub, 'sub'>;
 export type OmitTypeNoBase = Omit<Sub, 'base'>;
 export type OmitTypeNoSubNoBase = Omit<Sub, 'base' | 'sub'>;
+
+export type KeyOfType = keyof Sub;
