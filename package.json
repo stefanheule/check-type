@@ -5,14 +5,15 @@
   "author": "Stefan Heule <stefanheule@gmail.com>",
   "license": "MIT",
   "bin": {
-    "generate-schema": "./build/cli.js"
+    "generate-schema": "./build/src/cli.js"
   },
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "scripts": {
     "copy": "ts-node --transpile-only copy.ts",
     "copy2": "ts-node --transpile-only copy.ts export",
     "test": "jest",
+    "release": "tsx release.ts",
     "codegen": "yarn tsx src/tools/types/generate-schema-main.ts --config '[{\"root\":\"test\"}]'",
     "build": "tsc -p tsconfig.release.json"
   },
