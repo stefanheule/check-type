@@ -22,7 +22,10 @@ async function main() {
       await run(`rm -rf ${HERE}/../${project}/${dir}node_modules/check-type`);
     }
 
-    await run(`yarn --cwd ${HERE}/../${project} install-all`);
+    for (const dir of ['server', 'client']) {
+      await run(`yarn --cwd ${HERE}/../${project} ${dir} install --check-files`);
+    }
+    await run(`yarn --cwd ${HERE}/../${project} install --check-files`);
   }
 }
 
