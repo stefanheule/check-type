@@ -242,6 +242,9 @@ function nodeToType(
       filename,
     };
   }
+  if (ts.isParenthesizedTypeNode(node)) {
+    return nodeToType(checker, node.type, name, filename);
+  }
   if (
     ts.isLiteralTypeNode(node) &&
     node.literal.kind == ts.SyntaxKind.NullKeyword
