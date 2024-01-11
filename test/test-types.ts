@@ -61,3 +61,7 @@ export interface CommonTypes {
   isoDatetime?: IsoDatetime;
   // ...
 }
+
+export type OmitTypeNoSub = Omit<Sub, 'sub'>;
+export type OmitTypeNoBase = Omit<Sub, 'base'>;
+export type OmitTypeNoSubNoBase = Omit<Sub, 'base' | 'sub'>;

@@ -269,7 +269,7 @@ function checkValueAgainstTypeHelper(
             valueString,
             typeToShortString(type),
             depth + 1,
-            { ignoredFields }
+            { ignoredFields: ignoredFields.concat(type.omittedFields) }
           );
           break;
         case 'mapped':
@@ -517,7 +517,8 @@ ${errors.join('\n')}`);
               schema,
               valueString,
               typeToString(heritage, { short: true }),
-              depth + 1
+              depth + 1,
+              { ignoredFields }
             );
           }
           break;

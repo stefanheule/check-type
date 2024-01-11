@@ -16,6 +16,27 @@ function checkValueAgainstType(value: unknown, type: { kind: string }): string {
   );
 }
 
+test('Omit', () => {
+  expect(
+    checkValueAgainstType({ sub: 'b' }, TEST_SCHEMA.types.OmitTypeNoBase)
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+    checkValueAgainstType({ base: 'a' }, TEST_SCHEMA.types.OmitTypeNoSub)
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+    checkValueAgainstType({}, TEST_SCHEMA.types.OmitTypeNoSubNoBase)
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+    checkValueAgainstType({ base: 'a' }, TEST_SCHEMA.types.OmitTypeNoSubNoBase)
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+    checkValueAgainstType({ sub: 'b' }, TEST_SCHEMA.types.OmitTypeNoSubNoBase)
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+    checkValueAgainstType({ base: 'a', sub: 'b' }, TEST_SCHEMA.types.OmitTypeNoSubNoBase)
+  ).toMatchInlineSnapshot(`""`);
+})
+
 test('Records', () => {
   expect(
     checkValueAgainstType({ a: 1, b: 2, extraField: 3 }, TEST_SCHEMA.types.RecAB)
