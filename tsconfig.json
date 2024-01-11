@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "build",
-    "rootDir": "src",
+    "rootDir": ".",
     "module": "CommonJS",
     "target": "ES2021",
     "moduleResolution": "node",
@@ -25,5 +25,5 @@
     "declarationMap": true,
     "inlineSources": true
   },
-  "include": ["src/"]
+  "include": ["src/", "test/"]
 }
