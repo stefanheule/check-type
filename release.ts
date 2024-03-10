@@ -9,6 +9,7 @@ async function run(command: string) {
   const { stdout, stderr } = await promisify(exec)(command);
   if (stdout) console.log(stdout);
   if (stderr) {
+    console.log('STDERR:')
     console.error(stderr);
     process.exit(1);
   }
