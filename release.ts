@@ -16,7 +16,11 @@ async function run(command: string) {
 
 async function main() {
   await run(`yarn build`);
-  for (const project of ['metro', 'purplemoon']) {
+
+  // No need to do anything on terra other than update the repo and rebuild. Deploying projects does a fresh install of dependencies, so that's fine.
+  await run(`ssh terra NO_GITSTATUS=yes 'zsh -ic "cd ~/www/check-type && git pull && yarn install && yarn build"'`);
+
+  for (const project of ['metro', 'purplemoon', 'call-schedule']) {
     await run(`rm -f ${HERE}/../${project}/node_modules/.bin/generate-schema`);
     for (const dir of ['', 'server/', 'client/']) {
       await run(`rm -rf ${HERE}/../${project}/${dir}node_modules/check-type`);
