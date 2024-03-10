@@ -109,6 +109,8 @@ export function computePropertiesOfType(schema: Schema, type: Type): string[] {
     case 'number-literal':
     case 'keyof':
       return [];
+    case 'index-signature':
+      throw new Error(`Cannot compute fields of ${typeToString(type)}, because it is an index signature.`);
     case 'mapped':
       const from = resolveType(schema, type.mapFrom);
       switch (from.kind) {
@@ -268,6 +270,19 @@ function checkValueAgainstTypeHelper(
           if (!keys.includes(value as string)) {
             throw new TypecheckingError(
               `Expected one of [${keys.map(value => `'${value}'`)}], but got '${value}'`
+            );
+          }
+          break;
+        case 'index-signature':
+          checkJsType('object');
+          for (const field of Object.keys(value as object)) {
+            checkValueAgainstTypeHelper(
+              (value as { [field: string]: unknown })[field],
+              type.valueType,
+              schema,
+              `${valueString}['${field}']`,
+              typeToShortString(type.valueType),
+              depth + 1
             );
           }
           break;

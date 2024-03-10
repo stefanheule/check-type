@@ -20,6 +20,7 @@ export type ResolvedType =
   | OmitType
   | KeyofType
   | BooleanLiteralType
+  | IndexSignatureType
   | UndefinedType;
 export interface BaseType {
   /** The name of this type (if it has one). */
@@ -28,6 +29,11 @@ export interface BaseType {
   filename?: string;
   /** Should changes to this type be ignored across versions? */
   ignoreChanges?: boolean;
+}
+export interface IndexSignatureType extends BaseType {
+  kind: 'index-signature';
+  keyType: Type;
+  valueType: Type;
 }
 export interface ReferenceType extends BaseType {
   kind: 'reference-type';
@@ -163,6 +169,11 @@ export function typeToString(
       return type.value.toString();
     case 'reference-type':
       return type.referencedTypeName;
+    case 'index-signature':
+      return `{ [key: ${typeToString(type.keyType, options)}]: ${typeToString(
+        type.valueType,
+        options
+      )} }`;
     case 'interface':
       return `{${short ? ' ' : '\n  '}${type.fields
         .map(

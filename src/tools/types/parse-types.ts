@@ -296,6 +296,19 @@ function nodeToType(
         }
       }
     }
+    // Is this index signature?
+    if (node.members.length === 1 && ts.isIndexSignatureDeclaration(node.members[0])) {
+      if (heritage.length > 0) {
+        throw new Error(`Index signature cannot have heritage.`);
+      }
+      return {
+        kind: 'index-signature',
+        keyType: nodeToType(checker, assertNonNull(node.members[0].parameters[0].type)),
+        valueType: nodeToType(checker, assertNonNull(node.members[0].type)),
+        name,
+        filename,
+      }
+    }
     return {
       kind: 'interface',
       fields: node.members.map(member => tsMemberToField(checker, member)),

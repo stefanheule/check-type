@@ -56,6 +56,10 @@ export type MappedABOptional = {
   [Symbol in 'a' | 'b']?: number;
 };
 
+export type IndexSignature = {
+  [key: string]: number;
+}
+
 export interface CommonTypes {
   isoDate?: IsoDate;
   isoDatetime?: IsoDatetime;

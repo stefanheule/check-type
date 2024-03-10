@@ -459,3 +459,44 @@ test('intersection', () => {
     "
   `);
 });
+
+test('index signature', () => {
+  // Passing.
+  expect(
+    checkValueAgainstType({ a: 1, b: 2 }, TEST_SCHEMA.types.IndexSignature)
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+    checkValueAgainstType({ }, TEST_SCHEMA.types.IndexSignature)
+  ).toMatchInlineSnapshot(`""`);
+  // Failing.
+  expect(checkValueAgainstType({ a: 'wrong type' }, TEST_SCHEMA.types.IndexSignature)).
+toMatchInlineSnapshot(`
+"value (aka. \`{"a":"wrong type"}\`) does not conform to IndexSignature!
+
+Expected Javascript type number, but got type string
+While checking value['a'] (aka. \`'wrong type'\`) against type number
+"
+`);
+  expect(checkValueAgainstType(undefined, TEST_SCHEMA.types.IndexSignature)).
+toMatchInlineSnapshot(`
+"value (aka. \`undefined\`) does not conform to IndexSignature!
+
+Expected Javascript type object, but got type undefined
+"
+`);
+  expect(checkValueAgainstType(3, TEST_SCHEMA.types.IndexSignature)).
+toMatchInlineSnapshot(`
+"value (aka. \`3\`) does not conform to IndexSignature!
+
+Expected Javascript type object, but got type number
+"
+`);
+  expect(checkValueAgainstType({ a: 1, b: 'wrong-type' }, TEST_SCHEMA.types.IndexSignature)).
+toMatchInlineSnapshot(`
+"value (aka. \`{"a":1,"b":"wrong-type"}\`) does not conform to IndexSignature!
+
+Expected Javascript type number, but got type string
+While checking value['b'] (aka. \`'wrong-type'\`) against type number
+"
+`);
+});
