@@ -13,7 +13,7 @@ import {
   indent,
   BuiltInType,
 } from './type-definitions';
-import { assertNonNull, hasProperty, mapEnum, objectToJson } from './language';
+import { assertNonNull, exceptionToString, hasProperty, mapEnum, objectToJson } from './language';
 import {
   validateCountryCode,
   validateDollarAmount,
@@ -122,12 +122,12 @@ export function computePropertiesOfType(schema: Schema, type: Type): string[] {
             if (member.kind === 'string-literal') {
               result.push(member.value);
             } else {
-              throw new Error(`Cannot compute fields of ${typeToString(type)}`);
+              throw new Error(`Cannot compute fields of ${typeToString(type)}, because from is a union with a member that is ${member.kind}`);
             }
           }
           return result;
         default:
-          throw new Error(`Cannot compute fields of ${typeToString(type)}`);
+          throw new Error(`Cannot compute fields of ${typeToString(type)}, because from is ${from.kind}`);
       }
     case 'array':
       return ['length'];
@@ -321,7 +321,7 @@ function checkValueAgainstTypeHelper(
             throw new Error(
               `Cannot type-check mapped type with mapFrom type ${typeToString(
                 type.mapFrom
-              )}`
+              )}, because properties are not fixed: ${exceptionToString(e)}`
             );
           }
           for (const property of properties) {

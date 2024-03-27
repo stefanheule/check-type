@@ -1,4 +1,4 @@
-import { Schema, Type, checkValueAgainstType as checkValueAgainstTypeBase } from '../src';
+import { Schema, Type, checkValueAgainstType as checkValueAgainstTypeBase, computePropertiesOfType } from '../src';
 import TEST_SCHEMA from './schema.json';
 
 console.log(
@@ -14,6 +14,10 @@ function checkValueAgainstType(value: unknown, type: { kind: string }): string {
     type as Type,
     TEST_SCHEMA as unknown as Schema
   );
+}
+
+function getProperties(type: { kind: string}): string[] {
+  return computePropertiesOfType(TEST_SCHEMA as unknown as Schema, type as Type);
 }
 
 test('KeyOfType', () => {
@@ -82,6 +86,15 @@ test('Records', () => {
   expect(
     checkValueAgainstType({ a: 1 }, TEST_SCHEMA.types.MappedABOptional)
   ).toMatchInlineSnapshot(`""`);
+
+  expect(
+  getProperties(TEST_SCHEMA.types.MappedABOptional)
+).toMatchInlineSnapshot(`
+[
+  "a",
+  "b",
+]
+`);
 });
 
 test('IsoDatetime', () => {
