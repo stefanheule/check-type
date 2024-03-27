@@ -118,7 +118,8 @@ export function computePropertiesOfType(schema: Schema, type: Type): string[] {
           return [from.value];
         case 'union':
           const result = [];
-          for (const member of from.unionMembers) {
+          for (const m of from.unionMembers) {
+            const member = resolveType(schema, m);
             if (member.kind === 'string-literal') {
               result.push(member.value);
             } else {

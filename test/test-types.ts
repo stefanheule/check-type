@@ -55,6 +55,9 @@ export type RecAB = Record<'a' | 'b', number>;
 export type MappedABOptional = {
   [Symbol in 'a' | 'b']?: number;
 };
+export type MappedABOptionalIndirect = {
+  [Symbol in Enum]?: number;
+};
 
 export type IndexSignature = {
   [key: string]: number;

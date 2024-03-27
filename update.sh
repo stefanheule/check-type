@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# IMPORTANT: This script is not used, use yarn release instead
+echo "IMPORTANT: This script is not used, use yarn release instead"
+exit 1
 
 set -e
 

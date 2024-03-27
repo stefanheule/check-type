@@ -88,13 +88,13 @@ test('Records', () => {
   ).toMatchInlineSnapshot(`""`);
 
   expect(
-  getProperties(TEST_SCHEMA.types.MappedABOptional)
-).toMatchInlineSnapshot(`
-[
-  "a",
-  "b",
-]
-`);
+    getProperties(TEST_SCHEMA.types.MappedABOptionalIndirect)
+  ).toMatchInlineSnapshot(`
+  [
+    "a",
+    "b",
+  ]
+  `);
 });
 
 test('IsoDatetime', () => {
