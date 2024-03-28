@@ -12,6 +12,7 @@ import {
   typeToString,
   indent,
   BuiltInType,
+  UnionType,
 } from './type-definitions';
 import { assertNonNull, exceptionToString, hasProperty, mapEnum, objectToJson } from './language';
 import {
@@ -118,8 +119,7 @@ export function computePropertiesOfType(schema: Schema, type: Type): string[] {
           return [from.value];
         case 'union':
           const result = [];
-          for (const m of from.unionMembers) {
-            const member = resolveType(schema, m);
+          for (const member of resolveUnionMembers(schema, from)) {
             if (member.kind === 'string-literal') {
               result.push(member.value);
             } else {
@@ -414,12 +414,11 @@ function checkValueAgainstTypeHelper(
               );
             }
             const unionKindType = assertNonNull(
-              type.unionMembers.find(member => {
-                const resolvedMember = resolveType(schema, member);
+              resolveUnionMembers(schema, type).find(member => {
                 return (
-                  resolvedMember.kind === 'interface' &&
+                  member.kind === 'interface' &&
                   Boolean(
-                    resolvedMember.fields.find(
+                    member.fields.find(
                       field =>
                         field.name == 'kind' &&
                         field.type.kind == 'string-literal' &&
@@ -602,4 +601,18 @@ function typeToShortString(type: Type, alternative?: string): string {
   )
     return str;
   return alternative;
+}
+
+function resolveUnionMembers(schema: Schema, type: UnionType): Type[] {
+  const result: Type[] = [];
+
+  for (const member of type.unionMembers) {
+    const resolvedMember = resolveType(schema, member);
+    if (resolvedMember.kind === 'union') {
+      result.push(...resolveUnionMembers(schema, resolvedMember));
+    } else {
+      result.push(resolvedMember);
+    }
+  }
+  return result;
 }
