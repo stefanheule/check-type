@@ -4,14 +4,16 @@ import { promisify } from 'util';
 
 const HERE = __dirname;
 
-async function run(command: string) {
+async function run(command: string, config?: {
+  allowStdErr?: boolean;
+}) {
   console.log(`${command}`);
   const { stdout, stderr } = await promisify(exec)(command);
   if (stdout) console.log(stdout);
   if (stderr) {
     console.log('STDERR:')
     console.error(stderr);
-    process.exit(1);
+    if (config?.allowStdErr !== true) process.exit(1);
   }
 }
 
@@ -21,13 +23,15 @@ async function main() {
 
   await run(`yarn build`);
 
-  const local = process.argv[2].includes('local');
+  const local = process.argv[2] && process.argv[2].includes('local');
   if (local) {
     console.log('Local build, skipping terra sync');
   }
 
   // No need to do anything on terra other than update the repo and rebuild. Deploying projects does a fresh install of dependencies, so that's fine.
-  if (!local) await run(`ssh terra NO_GITSTATUS=yes 'zsh -ic "cd ~/www/check-type && git pull && yarn install && yarn build"'`);
+  if (!local) await run(`ssh terra NO_GITSTATUS=yes 'zsh -ic "cd ~/www/check-type && git pull && yarn install && yarn build"'`, {
+    allowStdErr: true
+  });
 
   let projects = ['metro', 'purplemoon', 'call-schedule'];
   const only = process.argv.find(arg => arg.startsWith('only='));
