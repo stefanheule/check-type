@@ -95,6 +95,19 @@ test('Records', () => {
     "b",
   ]
   `);
+
+  expect(
+  checkValueAgainstType({ a: 1 }, TEST_SCHEMA.types.StringRecord)
+).toMatchInlineSnapshot(`""`);
+  expect(
+  checkValueAgainstType({ a: "wrong type" }, TEST_SCHEMA.types.StringRecord)
+).toMatchInlineSnapshot(`
+"value (aka. \`{"a":"wrong type"}\`) does not conform to StringRecord!
+
+Expected Javascript type number, but got type string
+While checking value['a'] (aka. \`'wrong type'\`) against type number
+"
+`);
 });
 
 test('IsoDatetime', () => {

@@ -315,36 +315,46 @@ function checkValueAgainstTypeHelper(
             break;
           }
           // Fixed set of properties?
-          let properties;
+          let properties = undefined;
           try {
             properties = computePropertiesOfType(schema, type);
           } catch (e) {
-            throw new Error(
-              `Cannot type-check mapped type with mapFrom type ${typeToString(
-                type.mapFrom
-              )}, because properties are not fixed: ${exceptionToString(e)}`
-            );
+            // do nothing
           }
-          for (const property of properties) {
-            if (ignoredFields.includes(property)) continue;
-            if (
-              !type.optional &&
-              options?.partial !== true &&
-              !hasProperty(value, property)
-            ) {
-              throw new TypecheckingError(
-                `Field '${property}' is not optional but missing from value`
-              );
-            }
-            if (hasProperty(value, property)) {
+          if (properties === undefined) {
+            for (const field of Object.keys(value as object)) {
+              if (ignoredFields.includes(field)) continue;
               checkValueAgainstTypeHelper(
-                value[property],
+                (value as { [field: string]: unknown })[field],
                 type.mapTo,
                 schema,
-                `${valueString}['${property}']`,
+                `${valueString}['${field}']`,
                 typeToShortString(type.mapTo),
                 depth + 1
               );
+            }
+          } else {
+            for (const property of properties) {
+              if (ignoredFields.includes(property)) continue;
+              if (
+                !type.optional &&
+                options?.partial !== true &&
+                !hasProperty(value, property)
+              ) {
+                throw new TypecheckingError(
+                  `Field '${property}' is not optional but missing from value`
+                );
+              }
+              if (hasProperty(value, property)) {
+                checkValueAgainstTypeHelper(
+                  value[property],
+                  type.mapTo,
+                  schema,
+                  `${valueString}['${property}']`,
+                  typeToShortString(type.mapTo),
+                  depth + 1
+                );
+              }
             }
           }
           break;

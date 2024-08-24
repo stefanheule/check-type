@@ -74,3 +74,5 @@ export type OmitTypeNoBase = Omit<Sub, 'base'>;
 export type OmitTypeNoSubNoBase = Omit<Sub, 'base' | 'sub'>;
 
 export type KeyOfType = keyof Sub;
+
+export type StringRecord = Record<string, number>;

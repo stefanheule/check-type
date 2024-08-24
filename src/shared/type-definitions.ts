@@ -211,6 +211,6 @@ export function typeToString(
         .map(x => `'${x}'`)
         .join(' | ')}>`;
     case 'mapped':
-      return `{ [Symbol in ${type.mapFrom}]: ${type.mapTo}}`;
+      return `{ [Symbol in ${typeToString(type.mapFrom)}]: ${typeToString(type.mapTo)}}`;
   }
 }
