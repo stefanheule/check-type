@@ -119,6 +119,48 @@ test('IsoDatetime', () => {
   ).toMatchInlineSnapshot(`""`);
 });
 
+test('TemporalPlainDateTime', () => {
+  expect(
+    checkValueAgainstType(
+      { TemporalPlainDateTime: '2022-01-21T20:47:27' },
+      TEST_SCHEMA.types.CommonTypes
+    )
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+  checkValueAgainstType(
+    { TemporalPlainDateTime: '2022-01-21' },
+    TEST_SCHEMA.types.CommonTypes
+  )
+).toMatchInlineSnapshot(`
+"value (aka. \`{"TemporalPlainDateTime":"2022-01-21"}\`) does not conform to CommonTypes!
+
+Invalid Temporal.PlainDateTime: value == 2022-01-21 !== 2022-01-21T00:00:00 == serialize(deserialize(value)) Got '2022-01-21' for TemporalPlainDateTime
+While checking value['TemporalPlainDateTime'] (aka. \`'2022-01-21'\`) against type TemporalPlainDateTime
+"
+`);
+});
+
+test('TemporalPlainYearMonth', () => {
+  expect(
+    checkValueAgainstType(
+      { TemporalPlainYearMonth: '2022-01' },
+      TEST_SCHEMA.types.CommonTypes
+    )
+  ).toMatchInlineSnapshot(`""`);
+  expect(
+  checkValueAgainstType(
+    { TemporalPlainYearMonth: '2022-01-21' },
+    TEST_SCHEMA.types.CommonTypes
+  )
+).toMatchInlineSnapshot(`
+"value (aka. \`{"TemporalPlainYearMonth":"2022-01-21"}\`) does not conform to CommonTypes!
+
+Invalid Temporal.PlainYearMonth: value == 2022-01-21 !== 2022-01 == serialize(deserialize(value)) Got '2022-01-21' for TemporalPlainYearMonth
+While checking value['TemporalPlainYearMonth'] (aka. \`'2022-01-21'\`) against type TemporalPlainYearMonth
+"
+`);
+});
+
 test('interface', () => {
   // Passing.
   expect(

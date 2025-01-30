@@ -36,6 +36,24 @@ export type NumericString = string & { _NumericString: unknown };
 // A string representing a dollar amount, e.g. 1.38 (same as NumericString, but at most two decimal digits)
 export type DollarAmount = string & { _NumericString: unknown };
 
+// A Temporal.PlainDateTime object's string representation
+export type TemporalPlainDateTime = string & { _TemporalPlainDateTime: unknown };
+
+// A Temporal.PlainDate object's string representation
+export type TemporalPlainDate = string & { _TemporalPlainDate: unknown };
+
+// A Temporal.PlainTime object's string representation
+export type TemporalPlainTime = string & { _TemporalPlainTime: unknown };
+
+// A Temporal.PlainYearMonth object's string representation
+export type TemporalPlainYearMonth = string & { _TemporalPlainYearMonth: unknown };
+
+// A Temporal.PlainMonthDay object's string representation
+export type TemporalPlainMonthDay = string & { _TemporalPlainMonthDay: unknown };
+
+// A Temporal.ZonedDateTime object's string representation
+export type TemporalZonedDateTime = string & { _TemporalZonedDateTime: unknown };
+
 export function formatEmail(email: string): TrimmedString {
   return email.trim().toLocaleLowerCase() as TrimmedString;
 }

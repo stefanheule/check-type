@@ -1,6 +1,6 @@
 // @check-type:entire-file
 
-import { IsoDate, IsoDatetime } from "../src";
+import { IsoDate, IsoDatetime, TemporalPlainDateTime, TemporalPlainYearMonth } from "../src";
 
 // Types used to test checkValueAgainstType.
 export interface Interface {
@@ -66,6 +66,8 @@ export type IndexSignature = {
 export interface CommonTypes {
   isoDate?: IsoDate;
   isoDatetime?: IsoDatetime;
+  TemporalPlainDateTime?: TemporalPlainDateTime;
+  TemporalPlainYearMonth?: TemporalPlainYearMonth;
   // ...
 }
 

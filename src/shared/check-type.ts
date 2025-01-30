@@ -29,6 +29,7 @@ import {
   validateUsState,
   validateUuid,
 } from './validators';
+import { validateTemporalPlainDate, validateTemporalPlainDateTime, validateTemporalPlainMonthDay, validateTemporalPlainTime, validateTemporalPlainYearMonth, validateTemporalZonedDateTime } from './temporal';
 
 export const SPECIAL_TYPES = [
   'IsoDate',
@@ -43,6 +44,12 @@ export const SPECIAL_TYPES = [
   'DollarAmount',
   'UsState',
   'CountryCode',
+  'TemporalPlainDateTime',
+  'TemporalPlainDate',
+  'TemporalPlainTime',
+  'TemporalPlainYearMonth',
+  'TemporalPlainMonthDay',
+  'TemporalZonedDateTime',
 ];
 
 // A type that can be used to express "Any type that's not a Promise".
@@ -73,6 +80,12 @@ function checkSpecialStringType(value: string, type: BuiltInType) {
     DollarAmount: validateDollarAmount,
     UsState: validateUsState,
     CountryCode: validateCountryCode,
+    TemporalPlainDateTime: validateTemporalPlainDateTime,
+    TemporalPlainDate: validateTemporalPlainDate,
+    TemporalPlainTime: validateTemporalPlainTime,
+    TemporalPlainYearMonth: validateTemporalPlainYearMonth,
+    TemporalPlainMonthDay: validateTemporalPlainMonthDay,
+    TemporalZonedDateTime: validateTemporalZonedDateTime,
   });
   if (validator !== undefined) {
     const result = validator(value);
